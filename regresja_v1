@@ -1,0 +1,240 @@
+import matplotlib.pyplot as plt
+import csv
+import os
+
+import numpy as np
+
+
+sp500_ = True
+GM_ = True
+GM_SP = True
+Toyota = True
+GM_Toyota = True
+GM_SP_T = True
+from sklearn.linear_model import LinearRegression
+
+def take_data(my_file, index):
+    """
+    Returns a list which contains particular data from my_file.
+
+    Paramters
+    ---------
+    my_file(file)
+    """
+    if os.path.isfile(my_file):
+        with open(my_file, "r") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            lines = []
+            for line in csv_reader:
+                try:
+                    lines.append(float(line[index]))
+                except:
+                    lines.append(line[index])
+            del lines[0]
+        return lines
+    else:
+        raise FileNotFoundError
+
+sp500 = take_data("SP500.csv", 1)
+ford = take_data("Ford.csv", 1)
+GM = take_data("GM.csv", 1)
+Toyota_1 = take_data("Toyota_1.csv", 1)
+Toyota_2 = take_data("Toyota_2.csv", 1)
+
+cal = 1000
+
+
+sp500 = sp500[2022:]
+GM= GM[336:]
+Toyota_1 = Toyota_1[270:]
+Toyota_2 = Toyota_2[325:]
+Toyota_1 = Toyota_2
+
+F = ford
+delt = np.diff(np.log(F))
+delt_sp500 = np.diff(np.log(sp500)) # zlogarytmowanie przytrosty!
+delt_GM = np.diff(np.log(GM)) # zlogarytmowanie przytrosty!
+delt_Toyota_2 = np.diff(np.log(Toyota_2))
+delt_Toyota_1 = np.diff(np.log(Toyota_1))
+
+Y = delt[0:cal,]  # próbka pocz atkowa uzyta do trenowania regresji czyli do znalezienia bet w równianiu 1)
+Y_real = delt[cal:,]
+
+X0 = np.ones(np.shape(Y))
+
+
+if sp500_:
+    X1 = delt_sp500[0:cal,] 
+    #X1 = delt_GM[0:cal,]
+     
+    #X2 = toyota[]
+    
+    X_fut = np.array([np.array(np.ones(np.shape(Y_real))),np.array(delt_sp500[cal:,] )],dtype=object).T
+    #X_fut = np.array([np.array(np.ones(np.shape(Y_real))),np.array(delt_GM[cal:,] )],dtype=object).T
+    
+    #X_fut = np.array([np.ones(np.shape(Y_real)),delt_sp500[cal:,] ]).T
+    
+    
+    
+    ##############
+    
+    X = np.array([X0,X1]).T
+    # X = np.array([X0,X1,X2]).T
+    
+    Y = np.array(Y).reshape(-1,1)
+    
+    model = LinearRegression(fit_intercept = False)
+    model.fit(X, Y)          # na podstawie równania - tu wchodza szystkie zmienne 
+    
+    betas = model.coef_  # współcznynniki rownania
+    
+    Y_fut = list(np.dot(X_fut,betas.T)) # prognozowane wartosci zmiennej
+    ################################
+    
+    ######
+    forecasts = [F[cal]]
+    for i in range(np.shape(Y_fut)[0]):
+        forecasts.append(forecasts[i]*np.exp(float(Y_fut[i]))) # tylko początkowy punkt brany z prawdziwej ceny, resta wysymulowane
+        
+        
+    plt.plot(forecasts)
+    plt.plot(F[cal+1:])
+    plt.xlabel('sp500')
+    plt.show()
+
+if GM_:
+    X1 = delt_GM[0:cal,]
+ 
+    
+    X_fut = np.array([np.array(np.ones(np.shape(Y_real))),np.array(delt_GM[cal:,] )],dtype=object).T
+    
+
+    
+    X = np.array([X0,X1]).T
+
+    
+    Y = np.array(Y).reshape(-1,1)
+    
+    model = LinearRegression(fit_intercept = False)
+    model.fit(X, Y)          
+    betas = model.coef_  
+    
+    Y_fut = list(np.dot(X_fut,betas.T)) 
+    forecasts = [F[cal]]
+    for i in range(np.shape(Y_fut)[0]):
+        forecasts.append(forecasts[i]*np.exp(float(Y_fut[i]))) #print(Y_fut[i])
+        
+    plt.plot(forecasts)
+    plt.plot(F[cal+1:])
+    plt.xlabel('GM')
+    plt.show()
+    
+if Toyota:
+    X1 = delt_Toyota_1[0:cal,]
+     
+    
+    X_fut = np.array([np.array(np.ones(np.shape(Y_real))),np.array(delt_Toyota_1[cal:,] *30 )],dtype=object).T
+    
+    #mnożenie x 30, z powodu mniejszych roznic logaryytmicznych
+    
+    
+    
+    X = np.array([X0,X1]).T
+    
+    Y = np.array(Y).reshape(-1,1)
+    
+    model = LinearRegression(fit_intercept = False)
+    model.fit(X, Y)         
+    
+    betas = model.coef_  
+    
+    Y_fut = list(np.dot(X_fut,betas.T)) 
+    forecasts = [F[cal]]
+    for i in range(np.shape(Y_fut)[0]):
+        forecasts.append(forecasts[i]*np.exp(float(Y_fut[i])))  #print(Y_fut[i]*10)
+        
+    plt.plot(forecasts)
+    plt.plot(F[cal+1:])
+    plt.xlabel('Toyota')
+    plt.show()
+    
+
+    
+if GM_SP:
+    X1 = delt_sp500[0:cal,] 
+    X2 = delt_GM[0:cal,]
+     
+
+    
+    X_fut = np.array([np.array(np.ones(np.shape(Y_real))),np.array(delt_sp500[cal:,] ),np.array(delt_GM[cal:,] )],dtype=object).T
+
+    X = np.array([X0,X1,X2]).T
+    
+    Y = np.array(Y).reshape(-1,1)
+    
+    model = LinearRegression(fit_intercept = False)
+    model.fit(X, Y)        
+    betas = model.coef_  
+    
+    Y_fut = list(np.dot(X_fut,betas.T)) 
+    forecasts = [F[cal]]
+    for i in range(np.shape(Y_fut)[0]):
+        forecasts.append(forecasts[i]*np.exp(float(Y_fut[i]))) 
+        
+    plt.plot(forecasts)
+    plt.plot(F[cal+1:])
+    plt.xlabel('sp500&GM')
+    plt.show()
+    
+    
+if GM_Toyota:
+    X1 = delt_Toyota_1[0:cal,] 
+    X2 = delt_GM[0:cal,]
+         
+    X_fut = np.array([np.array(np.ones(np.shape(Y_real))),np.array(delt_Toyota_1[cal:,]*30 ),np.array(delt_GM[cal:,] )],dtype=object).T
+
+    X = np.array([X0,X1,X2]).T
+    
+    Y = np.array(Y).reshape(-1,1)
+    
+    model = LinearRegression(fit_intercept = False)
+    model.fit(X, Y)        
+    betas = model.coef_  
+    
+    Y_fut = list(np.dot(X_fut,betas.T)) 
+
+    forecasts = [F[cal]]
+    for i in range(np.shape(Y_fut)[0]):
+        forecasts.append(forecasts[i]*np.exp(float(Y_fut[i]))) 
+        
+    plt.plot(forecasts)
+    plt.plot(F[cal+1:])
+    plt.xlabel('GM&Toyota')
+    plt.show()
+    
+    
+    
+if GM_SP_T:
+    X1 = delt_Toyota_1[0:cal,] 
+    X2 = delt_GM[0:cal,]
+    X3 = delt_sp500[0:cal,]
+    
+    X_fut = np.array([np.array(np.ones(np.shape(Y_real))),np.array(delt_sp500[cal:,] ),np.array(delt_Toyota_1[cal:,] ),np.array(delt_GM[cal:,] )],dtype=object).T
+    X = np.array([X0,X1,X2,X3]).T 
+    Y = np.array(Y).reshape(-1,1)
+    
+    model = LinearRegression(fit_intercept = False)
+    model.fit(X, Y)           
+    betas = model.coef_   
+    Y_fut = list(np.dot(X_fut,betas.T)) 
+
+    forecasts = [F[cal]]
+    for i in range(np.shape(Y_fut)[0]):
+        forecasts.append(forecasts[i]*np.exp(float(Y_fut[i]))) 
+        
+    plt.plot(forecasts)
+    plt.plot(F[cal+1:])
+    plt.xlabel('GM&SP500&Toyota')
+    plt.show()
+    
+##
