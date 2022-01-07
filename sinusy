@@ -1,0 +1,103 @@
+import matplotlib.pyplot as plt
+import datetime as dt
+import matplotlib.dates as mdates
+import csv
+import os
+import random
+import math
+
+import numpy as np
+
+sp500 = False
+sp500_1 = False
+tesla = False
+GM = False
+wig20 = False
+ford = False
+
+
+
+# Użyc funckji heaviside'a ? do crashy? ze jak jest od 1000 do 1100 dnia to dodaejmy odwrotna wykladnicza fukcje
+
+
+
+    
+def take_data(my_file, index):
+    """
+    Returns a list which contains particular data from my_file.
+
+    Paramters
+    ---------
+    my_file(file)
+    """
+    if os.path.isfile(my_file):
+        with open(my_file, "r") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            lines = []
+            for line in csv_reader:
+                try:
+                    lines.append(float(line[index]))
+                except:
+                    lines.append(line[index])
+            del lines[0]
+        return lines
+    else:
+        raise FileNotFoundError
+
+sp500 = take_data("SP500.csv", 1)
+ford = take_data("Ford.csv", 1)
+GM = take_data("GM.csv", 1)
+
+
+
+delt_sp500 = np.diff((sp500))
+
+
+
+
+
+
+if 1 >0:
+    ford = take_data("Ford.csv", 1)
+    GM = take_data("GM.csv", 1)
+    
+    GM = GM[336:]
+    print(len(GM))
+    roz = []
+    ford_1 = [12]
+    GM_1 = [27]
+
+        
+    for i in range(1,len(GM)):
+    
+        gm_r =0.0015 * math.sin(i/50)/2
+        f_r = 0.0015 * -math.sin(i/50)/2
+        x = delt_sp500[i]*0.05  * -math.sin(i/50)/2
+        y = delt_sp500[i]*0.05 * math.sin(i/50)/2
+        
+        if i > 3:
+            ford_1.append((ford_1[i-1]*1.00025) - (ford_1[i-1]*gm_r - GM_1[i-1]*f_r))# +delt_sp500[i]*0.05  + random.uniform(-0.25,0.25))
+            GM_1.append((GM_1[i-1]*1.00035) + (ford_1[i-1]*gm_r-GM_1[i-1]*(f_r)))#+ delt_sp500[i]*0.05 +random.uniform(-0.25,0.25))
+        else:
+            ford_1.append(ford_1[i-1]*1.00022 )
+            GM_1.append(GM_1[i-1]*1.00035 )
+        #roz.append(GM[i]-ford[i])
+    
+    #plt.plot(roz)
+   # plt.plot(ford)
+    plt.plot(ford_1)
+    plt.plot(GM_1)
+    #plt.plot(GM)
+    plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
