@@ -8,18 +8,14 @@ import math
 
 import numpy as np
 
-sp500 = False
-sp500_1 = False
-tesla = False
-GM = False
-wig20 = False
-ford = False
-
-
+sinusy = True
+sin_rand = True
+sin_rand_sp = True
+sin_rand_sp_events = True
 
 # Użyc funckji heaviside'a ? do crashy? ze jak jest od 1000 do 1100 dnia to dodaejmy odwrotna wykladnicza fukcje
 
-
+random.seed(12345)
 
     
 def take_data(my_file, index):
@@ -52,43 +48,380 @@ GM = take_data("GM.csv", 1)
 
 delt_sp500 = np.diff((sp500))
 
+sp500 = sp500[:2358]
 
 
 
+if sinusy:
+    ord = take_data("Ford.csv", 1)
+    GM = take_data("GM.csv", 1)
+    
+    GM = GM[336:]
+    print(len(GM))
+    roz = []
+    ford_1 = [32]
+    GM_1 = [47]
+    f_idx = 0
+    g_idx = 0
+        
+    for i in range(1,len(GM)):
+        
+        x = random.randint(0,3000)
+        y = random.randint(0,3000)
+        gm_r =0.0015 * math.sin(i/50)/2 
+        f_r = 0.0015 * -math.sin((i/50))/2
+        if x ==5:
+            
+            f_idx =5
+            
+        elif x==2:
+            f_idx = -7
+        else:
+            f_idx = 0
+        if y == 7:
+            
+            g_idx = 5
+            
+        elif y ==12:
+            g_idx = -7
+        else:
+            g_idx = 0    
+        
+         
+        ford_event = f_idx*(1 + 0.00001 * random.randint(5,35))
+        gm_event = g_idx*(1 + 0.00001 * random.randint(20,45))
+        
+        sp_ford = 0.01 * random.randint(3,5)
+        sp_gm = 0.01 * random.randint(3,5)
+        #ford_event = 0
+        #gm_event =0
+        
+        
+        
+        a = 1 + 0.00001 * random.randint(5,35)  #1.00022
+        b = 1 + 0.00001 * random.randint(20,45)  # 1.00035
+        
+        
+        if i > 3:
+            ford_1.append((ford_1[i-1]*a) - (ford_1[i-1]*gm_r - GM_1[i-1]*f_r) ) 
+            GM_1.append((GM_1[i-1]*b) + (ford_1[i-1]*gm_r-GM_1[i-1]*(f_r)))
+        else:
+            ford_1.append(ford_1[i-1]*1.00022 )
+            GM_1.append(GM_1[i-1]*1.00035 )
+        #roz.append(GM[i]-ford[i])
+        
+        
+        
+        if f_idx!=0:
+            if f_idx >0:
+                print(f_idx)
+                f_idx +=-0.1
+            else:
+                print(f_idx)
+                f_idx += 0.1
+                    
+        if g_idx!=0:
+            if g_idx >0:
+                print(g_idx)
+                g_idx +=-0.1
+            else:
+                print(g_idx)
+                g_idx += 0.1
+    #plt.plot(roz)
+   # plt.plot(ford)
+    plt.plot(ford_1)
+    plt.plot(GM_1)
+    #plt.plot(sp500)
+    #plt.plot(GM)
+    plt.xlabel('sinusy ')
+    plt.show()
 
 
-if 1 >0:
+if sin_rand:
     ford = take_data("Ford.csv", 1)
     GM = take_data("GM.csv", 1)
     
     GM = GM[336:]
     print(len(GM))
     roz = []
-    ford_1 = [12]
-    GM_1 = [27]
-
+    ford_1 = [32]
+    GM_1 = [47]
+    f_idx = 0
+    g_idx = 0
         
     for i in range(1,len(GM)):
-    
-        gm_r =0.0015 * math.sin(i/50)/2
-        f_r = 0.0015 * -math.sin(i/50)/2
-        x = delt_sp500[i]*0.05  * -math.sin(i/50)/2
-        y = delt_sp500[i]*0.05 * math.sin(i/50)/2
+        
+        x = random.randint(0,3000)
+        y = random.randint(0,3000)
+        gm_r =0.0015 * math.sin(i/50)/2 
+        f_r = 0.0015 * -math.sin((i/50))/2
+        if x ==5:
+            
+            f_idx =5
+            
+        elif x==2:
+            f_idx = -7
+        else:
+            f_idx = 0
+        if y == 7:
+            
+            g_idx = 5
+            
+        elif y ==12:
+            g_idx = -7
+        else:
+            g_idx = 0    
+        
+         
+        ford_event = f_idx*(1 + 0.00001 * random.randint(5,35))
+        gm_event = g_idx*(1 + 0.00001 * random.randint(20,45))
+        
+        sp_ford = 0.01 * random.randint(3,5)
+        sp_gm = 0.01 * random.randint(3,5)
+        #ford_event = 0
+        #gm_event =0
+        
+        
+        
+        a = 1 + 0.00001 * random.randint(5,35)  #1.00022
+        b = 1 + 0.00001 * random.randint(20,45)  # 1.00035
+        
         
         if i > 3:
-            ford_1.append((ford_1[i-1]*1.00025) - (ford_1[i-1]*gm_r - GM_1[i-1]*f_r))# +delt_sp500[i]*0.05  + random.uniform(-0.25,0.25))
-            GM_1.append((GM_1[i-1]*1.00035) + (ford_1[i-1]*gm_r-GM_1[i-1]*(f_r)))#+ delt_sp500[i]*0.05 +random.uniform(-0.25,0.25))
+            ford_1.append((ford_1[i-1]*a) - (ford_1[i-1]*gm_r - GM_1[i-1]*f_r)  + random.uniform(-0.25,0.25)) 
+            GM_1.append((GM_1[i-1]*b) + (ford_1[i-1]*gm_r-GM_1[i-1]*(f_r)) +random.uniform(-0.25,0.25) )
         else:
             ford_1.append(ford_1[i-1]*1.00022 )
             GM_1.append(GM_1[i-1]*1.00035 )
         #roz.append(GM[i]-ford[i])
-    
+        
+        
+        
+        if f_idx!=0:
+            if f_idx >0:
+                print(f_idx)
+                f_idx +=-0.1
+            else:
+                print(f_idx)
+                f_idx += 0.1
+                    
+        if g_idx!=0:
+            if g_idx >0:
+                print(g_idx)
+                g_idx +=-0.1
+            else:
+                print(g_idx)
+                g_idx += 0.1
     #plt.plot(roz)
    # plt.plot(ford)
     plt.plot(ford_1)
     plt.plot(GM_1)
+    #plt.plot(sp500)
+    #plt.plot(GM)
+    plt.xlabel('sinusy + szum ')
+    plt.show()
+    
+    
+if sin_rand_sp:
+    ord = take_data("Ford.csv", 1)
+    GM = take_data("GM.csv", 1)
+    
+    GM = GM[336:]
+    print(len(GM))
+    roz = []
+    ford_1 = [32]
+    GM_1 = [47]
+    f_idx = 0
+    g_idx = 0
+        
+    for i in range(1,len(GM)):
+        
+        x = random.randint(0,3000)
+        y = random.randint(0,3000)
+        gm_r =0.0015 * math.sin(i/50)/2
+        f_r = 0.0015 * -math.sin((i/50))/2
+        if x ==5:
+            
+            f_idx =5
+            
+        elif x==2:
+            f_idx = -7
+        else:
+            f_idx = 0
+        if y == 7:
+            
+            g_idx = 5
+            
+        elif y ==12:
+            g_idx = -7
+        else:
+            g_idx = 0    
+        
+         
+        ford_event = f_idx*(1 + 0.00001 * random.randint(5,35))
+        gm_event = g_idx*(1 + 0.00001 * random.randint(20,45))
+        
+        sp_ford = 0.01 * random.randint(3,5)
+        sp_gm = 0.01 * random.randint(3,5)
+        #ford_event = 0
+        #gm_event =0
+        
+        
+        
+        a = 1 + 0.00001 * random.randint(25,35)  #1.00022
+        b = 1 + 0.00001 * random.randint(20,45)  # 1.00035
+        
+        
+        if i > 3:
+            ford_1.append((ford_1[i-1]*a) - (ford_1[i-1]*gm_r - GM_1[i-1]*f_r) + delt_sp500[i]*sp_ford  + random.uniform(-0.25,0.25) ) 
+            GM_1.append((GM_1[i-1]*b) + (ford_1[i-1]*gm_r-GM_1[i-1]*(f_r))+ delt_sp500[i]*sp_gm +random.uniform(-0.25,0.25) )
+        else:
+            ford_1.append(ford_1[i-1]*1.00022 )
+            GM_1.append(GM_1[i-1]*1.00035 )
+        #roz.append(GM[i]-ford[i])
+        
+        
+        
+        if f_idx!=0:
+            if f_idx >0:
+                print(f_idx)
+                f_idx +=-0.1
+            else:
+                print(f_idx)
+                f_idx += 0.1
+                    
+        if g_idx!=0:
+            if g_idx >0:
+                print(g_idx)
+                g_idx +=-0.1
+            else:
+                print(g_idx)
+                g_idx += 0.1
+    #plt.plot(roz)
+   # plt.plot(ford)
+    plt.plot(ford_1)
+    plt.plot(GM_1)
+    plt.xlabel('sinusy + szum + sp500 ')
+    #plt.plot(sp500)
     #plt.plot(GM)
     plt.show()
+    
+if sin_rand_sp_events:
+
+    ford = take_data("Ford.csv", 1)
+    GM = take_data("GM.csv", 1)
+    
+    GM = GM[336:]
+    print(len(GM))
+    roz = []
+    ford_1 = [320]
+    GM_1 = [470]
+    f_idx = 0
+    g_idx = 0
+        
+    for i in range(1,len(GM)):
+        
+        x = random.randint(0,1000)
+        y = random.randint(0,1000)
+        gm_r =0.0025 * math.sin(i/50)/4 
+        f_r = 0.0025 * -math.sin((i/50))/4
+        if x ==5:
+            
+            f_idx =30
+            
+        elif x==3:
+            f_idx = -70 #989 idx
+            
+        else:
+            f_idx = 0
+        if y == 4:
+            
+            g_idx = 15
+            
+        elif y ==15:
+            g_idx = -17
+        else:
+            g_idx = 0    
+        
+         
+        ford_event = f_idx*(1 + 0.00001 * random.randint(5,35))
+        gm_event = g_idx*(1 + 0.00001 * random.randint(20,45))
+        
+        sp_ford = 0.08 * random.randint(3,5)
+        sp_gm = 0.08 * random.randint(3,5)
+        #ford_event = 0
+        #gm_event =0
+        
+        
+        
+        a = 1 + 0.00001 * random.randint(15,35)  #1.00022
+        b = 1 + 0.00001 * random.randint(20,45)  # 1.00035
+        
+        
+        if i > 3:
+            ford_1.append((ford_1[i-1]*a) - (ford_1[i-1]*gm_r - GM_1[i-1]*f_r) + delt_sp500[i]*sp_ford  + random.uniform(-0.25,0.25)+ford_event ) 
+            GM_1.append((GM_1[i-1]*b) + (ford_1[i-1]*gm_r-GM_1[i-1]*(f_r))+ delt_sp500[i]*sp_gm +random.uniform(-0.25,0.25) + gm_event )
+        else:
+            ford_1.append(ford_1[i-1]*1.00022 )
+            GM_1.append(GM_1[i-1]*1.00035 )
+        #roz.append(GM[i]-ford[i])
+        
+        
+        
+        if f_idx!=0:
+            if f_idx >0:
+                print(f_idx)
+                f_idx +=-0.1
+            else:
+                print(f_idx)
+                f_idx += 0.1
+                    
+        if g_idx!=0:
+            if g_idx >0:
+                print(g_idx)
+                g_idx +=-0.1
+            else:
+                print(g_idx)
+                g_idx += 0.1
+    #plt.plot(roz)
+   # plt.plot(ford)
+    #plt.yscale('symlog')
+    plt.plot(ford_1)
+    #plt.plot(GM_1)
+    plt.axvline(456,ymin=0,ymax=0.05,color ='r')
+    plt.axvline(989,ymin=0,ymax=0.15,color ='b')
+    plt.axhline(y=240,xmin=0.48,xmax=0.53,color ='g')
+    #plt.plot(sp500)
+    #plt.plot(GM)
+    plt.legend(['A', 'good news','bad news','krach S&P500'])
+    plt.xlabel('sinusy + sszum + sp500 + losowe wydarzena')
+    plt.show()
+    
+    
+    plt.plot(ford_1)
+    plt.plot(GM_1)
+    plt.axvline(456,ymin=0,ymax=0.05,color ='r')
+    plt.axvline(989,ymin=0,ymax=0.15,color ='b')
+    plt.axhline(y=240,xmin=0.48,xmax=0.53,color ='g')
+    plt.legend(['A', 'B','good news','bad news','krach S&P500'])
+    plt.xlabel('sinusy + sszum + sp500 + losowe wydarzena')
+    plt.show()
+    
+    plt.plot(ford_1)
+    plt.plot(GM_1)
+    plt.yscale('log')
+    plt.plot(sp500)
+    plt.axvline(456,ymin=0,ymax=0.05,color ='r')
+    plt.axvline(989,ymin=0,ymax=0.15,color ='b')
+    plt.axhline(y=240,xmin=0.47,xmax=0.53,color ='g')
+    plt.legend(['A', 'B','good news','bad news','krach S&P500'])
+    plt.legend(['A','B','S&P500'])
+    plt.xlabel('porównanie z S&P500')
+    plt.show()
+
+
+
+
 
 
 
